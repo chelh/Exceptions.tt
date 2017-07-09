@@ -1,0 +1,219 @@
+﻿<#
+    // This is a simple code generator that builds exception classes in C# 3 and above.
+    // Original file “Exceptions.tt” copyright © 2017 Chelsea Hughes.
+    // This is version 1, saved 2017-07-08. See footer for original file license terms.
+#>
+<#@ template debug="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Collections.Generic" #>
+using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+<#
+    // Use the space below to define your exceptions using Exception(), with .Emit() at
+    // the end of each declaration to write the code to the generated .cs file.
+
+    Exception("MyNamespace", "SomethingHappenedException").Emit();
+    Exception("MyNamespace", "SomethingElseHappenedException")
+        .AddProperty("int", "Information1")
+        .AddProperty("int", "Information2")
+        .Emit();
+#>
+<#+
+    // This is the code that actually generates your exceptions. If you change it, consider
+    // submitting an issue or pull request to the original “Exceptions.tt” on GitHub:
+    //
+
+    internal class ExceptionBuilder
+    {
+        private readonly List<ExceptionPropertyBuilder> _properties;
+        private readonly Action<string> _write;
+
+        private string _lastPropertyAdded;
+        private bool _requiresNewline;
+
+        public ExceptionBuilder(string exceptionNamespace, string exceptionName, Action<string> write)
+        {
+            _properties = new List<ExceptionPropertyBuilder>();
+            Namespace = exceptionNamespace;
+            Name = exceptionName;
+            _write = write;
+        }
+
+        public string Name { get; set; }
+        public string Namespace { get; set; }
+
+        public ExceptionBuilder AddProperty(string typeName, string propertyName)
+        {
+            _properties.Add(new ExceptionPropertyBuilder(typeName, propertyName, this));
+            _lastPropertyAdded = propertyName;
+            return this;
+        }
+
+        public ExceptionBuilder ConfigureProperty(Action<ExceptionPropertyBuilder> configure)
+        {
+            return ConfigureProperty(_lastPropertyAdded, configure);
+        }
+
+        public ExceptionBuilder ConfigureProperty(string propertyName, Action<ExceptionPropertyBuilder> configure)
+        {
+            configure(_properties.Find(p => p.Name == propertyName));
+            return this;
+        }
+
+        public void Emit()
+        {
+            WriteLine("");
+            WriteLine("namespace " + Namespace);
+            WriteLine("{");
+            WriteLine("    [Serializable]");
+            WriteLine("    public class " + Name + " : Exception");
+            WriteLine("    {");
+            EmitConstructors();
+            EmitAutoProperties();
+            EmitGetObjectData();
+            WriteLine("    }");
+            WriteLine("}");
+        }
+
+        private void EmitAutoProperties()
+        {
+            if (_properties.Count == 0)
+            {
+                return;
+            }
+
+            NewlineIfRequired();
+            foreach (var property in _properties)
+            {
+                property.EmitAutoProperty();
+            }
+            _requiresNewline = true;
+        }
+
+        private void EmitConstructors()
+        {
+            NewlineIfRequired();
+            WriteLine("        public " + Name + "()");
+            WriteLine("        {");
+            WriteLine("        }");
+            WriteLine("");
+            WriteLine("        public " + Name + "(string message) : base(message)");
+            WriteLine("        {");
+            WriteLine("        }");
+            WriteLine("");
+            WriteLine("        public " + Name + "(string message, Exception innerException) : base(message, innerException)");
+            WriteLine("        {");
+            WriteLine("        }");
+            WriteLine("");
+            WriteLine("        protected " + Name + "(SerializationInfo info, StreamingContext context) : base(info, context)");
+            WriteLine("        {");
+            foreach (var property in _properties)
+            {
+                property.EmitDeserialization();
+            }
+            WriteLine("        }");
+            _requiresNewline = true;
+        }
+
+        private void EmitGetObjectData()
+        {
+            if (_properties.Count == 0)
+            {
+                return;
+            }
+
+            NewlineIfRequired();
+            WriteLine("        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]");
+            WriteLine("        public override void GetObjectData(SerializationInfo info, StreamingContext context)");
+            WriteLine("        {");
+            WriteLine("            base.GetObjectData(info, context);");
+            WriteLine("");
+            foreach (var property in _properties)
+            {
+                property.EmitSerialization();
+            }
+            WriteLine("        }");
+            _requiresNewline = true;
+        }
+
+        private void NewlineIfRequired()
+        {
+            if (_requiresNewline)
+            {
+                WriteLine("");
+                _requiresNewline = false;
+            }
+        }
+
+        private void Write(string s)
+        {
+            _write(s);
+        }
+
+        private void WriteLine(string s)
+        {
+            _write(s + Environment.NewLine);
+        }
+
+        internal class ExceptionPropertyBuilder
+        {
+            private readonly ExceptionBuilder _parent;
+
+            public ExceptionPropertyBuilder(string typeName, string propertyName, ExceptionBuilder parent)
+            {
+                TypeName = typeName ?? "";
+                Name = propertyName ?? "";
+                _parent = parent;
+            }
+
+            public string Name { get; set; }
+            public string TypeName { get; set; }
+
+            public void EmitAutoProperty()
+            {
+                WriteLine("        public " + TypeName + " " + Name + " { get; set; }");
+            }
+
+            public void EmitDeserialization()
+            {
+                WriteLine("            " + Name + " = (" + TypeName + ")info.GetValue("
+                    + "\"" + Name + "\", typeof(" + TypeName + "));");
+            }
+
+            public void EmitSerialization()
+            {
+                WriteLine("            info.AddValue(\"" + Name + "\", " + Name + ");");
+            }
+
+            private void Write(string s)
+            {
+                _parent.Write(s);
+            }
+
+            private void WriteLine(string s)
+            {
+                _parent.Write(s + Environment.NewLine);
+            }
+        }
+    }
+
+    internal ExceptionBuilder Exception(string exceptionNamespace, string exceptionName)
+    {
+        return new ExceptionBuilder(exceptionNamespace, exceptionName, Write);
+    }
+
+    // ORIGINAL LICENSE TERMS FOR “Exceptions.tt” ===========================================
+    //
+    // You may use this software for any purpose and alter it freely. You may redistribute it
+    // subject to the following restrictions:
+    //
+    //   1. Don’t misrepresent the software’s origin.
+    //   2. Clearly mark any altered versions, and don’t misrepresent them as the original.
+    //   3. Keep this notice intact when you distribute the software's source code.
+    //
+    // This software is provided “as-is,” without any express or implied warranty. In no event
+    // will I or any other contributor be held liable for damages arising from the use of this
+    // software.
+#>
