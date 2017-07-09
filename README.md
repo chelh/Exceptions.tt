@@ -79,7 +79,8 @@ namespace MyNamespace
 Feel free to submit an issue or pull request if there is an oversight
 in my code. However, please note that the following are firm `wontfix`:
 
-  * Immutability – no benefit in this case, and would very easily triple the codebase with new constructor cases and `With(…)` methods
+  * Immutability – no benefit in this case, and would very easily triple
+    the code complexity with new constructors
   * Anything that would add a runtime dependency to users’ projects
 
 ## License
