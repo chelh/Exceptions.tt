@@ -23,7 +23,7 @@ using System.Security.Permissions;
 <#+
     // This is the code that actually generates your exceptions. If you change it, consider
     // submitting an issue or pull request to the original “Exceptions.tt” on GitHub:
-    //
+    //     https://github.com/chelh/Exceptions.tt
 
     internal class ExceptionBuilder
     {
