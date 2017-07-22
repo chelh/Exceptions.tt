@@ -1,7 +1,7 @@
 ﻿<#
     // This is a simple code generator that builds exception classes in C# 3 and above.
-    // Original file “Exceptions.tt” copyright © 2017 Chelsea Hughes.
-    // This is version 1, saved 2017-07-08. See footer for original file license terms.
+    // Original file “Exceptions.tt” created 2017 by Chelsea Hughes.
+    // This is public domain software. See footer for more details.
 #>
 <#@ template debug="true" language="C#" #>
 <#@ output extension=".cs" #>
@@ -204,14 +204,11 @@ using System.Security.Permissions;
         return new ExceptionBuilder(exceptionNamespace, exceptionName, Write);
     }
 
-    // ORIGINAL LICENSE TERMS FOR “Exceptions.tt” ===========================================
+    // ORIGINAL PUBLIC DOMAIN NOTICE FOR “Exceptions.tt” ======================================
     //
-    // You may use this software for any purpose and alter it freely. You may redistribute it
-    // subject to the following restrictions:
-    //
-    //   1. Don’t misrepresent the software’s origin.
-    //   2. Clearly mark any altered versions, and don’t misrepresent them as the original.
-    //   3. Keep this notice intact when you distribute the software's source code.
+    // I release all rights to this work. You may use it for any purpose, and alter and
+    // redistribute it freely. If you use this in another product, credit would be appreciated
+    // but is not required.
     //
     // This software is provided “as-is,” without any express or implied warranty. In no event
     // will I or any other contributor be held liable for damages arising from the use of this
