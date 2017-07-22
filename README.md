@@ -1,9 +1,11 @@
-﻿# `Exceptions.tt`
+# `Exceptions.tt`
 
 This is a simple code generator that builds custom exception classes
 in C# 3 and above. It lets you specify multiple custom exception
 classes in a single file, each with custom properties, without
 writing all the necessary serialization boilerplate code.
+
+**I no longer maintain this project. I have released it into the public domain.**
 
 ## Features
 
@@ -83,17 +85,14 @@ in my code. However, please note that the following are firm `wontfix`:
     the code complexity with new constructors
   * Anything that would add a runtime dependency to users’ projects
 
-## License
+## Public domain software
 
-Copyright © 2017 Chelsea Hughes
+Created 2017 by Chelsea Hughes
 
-You may use this software for any purpose and alter it freely. You
-may redistribute it subject to these restrictions:
+I release all rights to this work. You may use it for any purpose, and alter
+and redistribute it freely. If you use this in another product, credit would
+be appreciated but is not required.
 
- 1. Don’t misrepresent the software’s origin.
- 2. Clearly mark any altered versions, and don’t misrepresent them as the original.
- 3. Keep this notice intact when you distribute the software’s source code.
- 
-This software is provided “as-is,” without any express or implied
-warranty. In no event will I or any other contributor be held liable
-for any damages arising from the use of this software.
+This software is provided “as-is,” without any express or implied warranty.
+In no event will I or any other contributor be held liable for any damages
+arising from the use of this software.
